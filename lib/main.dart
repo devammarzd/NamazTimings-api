@@ -13,6 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -27,11 +28,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List namaznames = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+  List namaznames = [
+    'Fajr',
+    'Sunrise',
+    'Dhuhr',
+    'Asr',
+    'Sunset',
+    'Maghrib',
+    'Isha'
+  ];
   DateTime _currentdate = DateTime.now();
   String currmonth = '';
   String currdate = '';
   String curryear = '';
+  String hijri='';
   //  String url = "http://api.aladhan.com/v1/hijriCalendarByCity?city=Karachi&country=Pakistan&method=1&month=10&year=1441";
   String name;
   List data;
@@ -46,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future makeRequestsingleitem() async {
     String url =
-        "http://api.aladhan.com/v1/calendarByCity?city=Karachi&country=Pakistan&method=1&month=$currmonth&year=$curryear";
+        "http://api.aladhan.com/v1/calendarByCity?city=Karachi&country=Pakistan&method=&month=$currmonth&year=$curryear";
     var response = await http
         .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
     var extractdata = JsonDecoder().convert(response.body);
@@ -87,7 +97,10 @@ class _MyHomePageState extends State<MyHomePage> {
     String _formattedDate = DateFormat.yMMMEd().format(_currentdate);
     return Scaffold(
       appBar: AppBar(
-        title: Text("NAMAZ API"),
+        elevation: 5.0,
+        centerTitle: true,
+        backgroundColor: Colors.teal[800],
+        title: Text("Namaz Timings",),
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.calendar_today),
@@ -96,42 +109,63 @@ class _MyHomePageState extends State<MyHomePage> {
               }),
         ],
       ),
-      body: Column(
-       
-        children: <Widget>[
-          SizedBox(height:20),
-Container(
-  child: Text('Namaz Timings',style: TextStyle(
-    fontSize: 30,
-    fontWeight: FontWeight.bold,
-    color: Colors.teal[700],
-  ),),
-),
-SizedBox(height:5),
-Container(
-  child: Text('Date: '+_formattedDate,style: TextStyle(fontWeight: FontWeight.w500),),
-),
-   SizedBox(height:30),
-          Center(
-            child: ListView.builder(
-              physics: ScrollPhysics(),
-              shrinkWrap: true,
-                itemCount: data == null ? 0 : namaznames.length,
-                itemBuilder: (context, i) {
-                  return ListTile(
-                    leading: Text(namaznames[i],style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.teal[500],
-                      fontWeight: FontWeight.w600)),
-                    trailing: Text(
-                        data[int.parse(currdate) - 1]['timings'][namaznames[i]],style: TextStyle(
-                      fontSize: 18,
-                      
-                      fontWeight: FontWeight.w500)),
-                  );
-                }),
-          ),
-        ],
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+
+              colors: [Colors.teal[200], Colors.white],
+              begin: Alignment.centerRight,
+              end: Alignment.centerLeft
+              ),
+        ),
+        child: Column(
+          children: <Widget>[
+            SizedBox(height: 20),
+            Container(
+              child: Text(
+                'Namaz Timings',
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.teal[800],
+                ),
+              ),
+            ),
+            SizedBox(height: 5),
+            Container(
+              child: Text(
+                'Date: ' + _formattedDate,
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
+            ),
+            SizedBox(height: 30),
+            Center(
+              child: ListView.separated(
+                  separatorBuilder: (context, index) => Divider(
+                        color: Colors.teal[800],
+                      ),
+                  physics: ScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: data == null ? 0 : namaznames.length,
+                  itemBuilder: (context, i) {
+                    return ListTile(
+                      leading: Text(namaznames[i],
+                          style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.teal[800],
+                              fontWeight: FontWeight.w600)),
+                      trailing: Text(
+                          data[int.parse(currdate) - 1]['timings']
+                              [namaznames[i]],
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w500)),
+                    );
+                  }),
+            ),
+          ],
+        ),
       ),
     );
   }
